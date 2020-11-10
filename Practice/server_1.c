@@ -20,7 +20,6 @@ int main()
 	int client_socket;
 	client_socket=accept(server_socket,NULL,NULL);
 	
-	char net_buf1[Net_Buf_Size];
 	char ch = 'y';
 	int choice,ack,nBytes;
 	struct sample s1;
@@ -33,7 +32,7 @@ int main()
 		printf("3. View all records (using Roll Number)\n");
 		printf("4. Modify a record (using Roll Number)\n");
 		printf("5. Delete a record (using Roll Number)\n");
-		
+		printf("6. Download a copy of record file\n");
 		recv(client_socket,&choice,sizeof(choice),0);
 		printf("Selected %d\n",choice);
 		
@@ -69,34 +68,9 @@ int main()
 				send(client_socket,&ack,sizeof(ack),0);
 				break;
 				
-			/*case 6:
-				printf("\nWaiting for name of file...\n");
-				// receive name of file
-				clearBuf(net_buf1);
-				nBytes = recvfrom(server_socket, net_buf1, Net_Buf_Size, SendRecvFlag,(struct sockaddr*)&server_address, &addrlen);
-				FILE *fp1 = fopen(net_buf1, "r");
-				printf("\nFile Name is Received: %s\n", net_buf1);
-				if (fp1 == NULL)
-				printf("\nFile open is failed!\n");
-				else
-				printf("\nFile Successfully is opened!\n");
-				while (1) {
-				// process
-				if (sendFile(fp1, net_buf1, Net_Buf_Size)) {
-				sendto(sockfd1, net_buf1, Net_Buf_Size,
-				SendRecvFlag,
-				(struct sockaddr*)&addr_con,
-				addrlen);
+			case 6:
+				upload_file(&client_socket);
 				break;
-				}
-				// send
-				sendto(sockfd1, net_buf1, Net_Buf_Size,
-				SendRecvFlag,
-				(struct sockaddr*)&addr_con, addrlen);
-				clearBuf(net_buf1);
-				}
-				if (fp1 != NULL)
-				fclose(fp1);*/
 				
 			default:
 				printf("Invalid Choice!!!\n");

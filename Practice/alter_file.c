@@ -49,7 +49,7 @@ struct sample find_record(int roll_no)
 {
 	struct sample s1;
 	int flag=-1;
-	FILE *ptr = fopen("Record.dat","r+");
+	FILE *ptr = fopen("DownloadedFile.txt","r+");
 	if(ptr==NULL)
 	{
 		printf("Failed\n");
@@ -74,7 +74,7 @@ struct sample find_record(int roll_no)
 
 void add_record(struct sample s1)
 {
-	FILE *ptr = fopen("Record.dat","a");
+	FILE *ptr = fopen("DownloadedFile.txt","a");
 	if(find_record(s1.roll_no).roll_no!=s1.roll_no)
 	{
 		fwrite(&s1,sizeof(struct sample),1,ptr);
@@ -91,7 +91,7 @@ void add_record(struct sample s1)
 void view_all()
 {
 	struct sample s1;
-	FILE *ptr = fopen("Record.dat","r+");
+	FILE *ptr = fopen("DownloadedFile.txt","r+");
 	if(ptr==NULL)
 	{
 		printf("Failed\n");
@@ -109,7 +109,7 @@ void view_all()
 int modify_record(int roll_no)
 {
 	struct sample s2;
-	FILE *ptr = fopen("Record.dat","r+");
+	FILE *ptr = fopen("DownloadedFile.txt","r+");
 	if(ptr==NULL)
 	{
 		printf("Is NUll\n");
@@ -136,8 +136,8 @@ int delete_record(int roll_no)
 {
 	struct sample s1;
 	FILE *ptr1,*ptr2;
-	ptr1 = fopen("Record.dat","r+");
-	ptr2 = fopen("temp.dat","w+");
+	ptr1 = fopen("DownloadedFile.txt","r+");
+	ptr2 = fopen("temp.txt","w+");
 	fseek(ptr1,0,SEEK_SET);
 	int flag = 0;
 	while(fread(&s1,sizeof(struct sample),1,ptr1))
@@ -154,8 +154,8 @@ int delete_record(int roll_no)
 	}
 	fclose(ptr1);
 	fclose(ptr2);
-	system("rm Record.dat");
-	system("mv temp.dat Record.dat");
+	system("rm DownloadedFile.txt");
+	system("mv temp.txt DownloadedFile.txt");
 	return flag;
 }
 

@@ -30,9 +30,10 @@ int main()
 	{
 		printf("1. Add a record\n");
 		printf("2. Retrieve a single record (using Roll Number)\n");
-		printf("3. View all records (using Roll Number)\n");
+		printf("3. View all records\n");
 		printf("4. Modify a record (using Roll Number)\n");
 		printf("5. Delete a record (using Roll Number)\n");
+		printf("6. Download a copy of record file\n");
 		printf("Enter your choice: ");
 		scanf("%d",&choice);
 		fflush(stdin);
@@ -123,6 +124,9 @@ int main()
 				
 				break;
 				
+			case 6:
+				download_file(&network_socket);
+				break;
 				
 			default:
 				printf("Invalid Choice!!!\n");

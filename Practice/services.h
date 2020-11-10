@@ -3,11 +3,6 @@
 #include <string.h>
 #include <unistd.h>
 
-#define Net_Buf_Size 32
-#define CipherKey 'S'
-#define SendRecvFlag 0
-#define NoFile "File Not Found!"
-
 void send_string(char *ptr, int *socket)
 {
 	int n = strlen(ptr);
@@ -70,7 +65,7 @@ struct sample find_record(int roll_no)
 {
 	struct sample s1;
 	int flag=-1;
-	FILE *ptr = fopen("Record.dat","r+");
+	FILE *ptr = fopen("Record.txt","r+");
 	if(ptr==NULL)
 	{
 		printf("Failed\n");
@@ -97,8 +92,9 @@ int add_record(struct sample s1)
 {
 	if(find_record(s1.roll_no).roll_no!=s1.roll_no)
 	{
-		FILE *ptr = fopen("Record.dat","a+");
+		FILE *ptr = fopen("Record.txt","a+");
 		fwrite(&s1,sizeof(struct sample),1,ptr);
+		fclose(ptr);
 		return 1;
 	}
 	else
@@ -110,7 +106,7 @@ int add_record(struct sample s1)
 void view_all(int *socket)
 {
 	struct sample s1;
-	FILE *ptr = fopen("Record.dat","r+");
+	FILE *ptr = fopen("Record.txt","r+");
 	if(ptr==NULL)
 	{
 		printf("Failed\n");
@@ -129,7 +125,7 @@ void view_all(int *socket)
 int modify_record(int roll_no, int *socket)
 {
 	struct sample s2;
-	FILE *ptr = fopen("Record.dat","r+");
+	FILE *ptr = fopen("Record.txt","r+");
 	if(ptr==NULL)
 	{
 		printf("Is NUll\n");
@@ -165,8 +161,8 @@ int delete_record(int roll_no)
 {
 	struct sample s1;
 	FILE *ptr1,*ptr2;
-	ptr1 = fopen("Record.dat","r+");
-	ptr2 = fopen("temp.dat","w+");
+	ptr1 = fopen("Record.txt","r+");
+	ptr2 = fopen("temp.txt","w+");
 	fseek(ptr1,0,SEEK_SET);
 	int flag = 0;
 	while(fread(&s1,sizeof(struct sample),1,ptr1))
@@ -183,46 +179,46 @@ int delete_record(int roll_no)
 	}
 	fclose(ptr1);
 	fclose(ptr2);
-	system("rm Record.dat");
-	system("mv temp.dat Record.dat");
+	system("rm Record.txt");
+	system("mv temp.txt Record.txt");
 	return flag;
 }
 
-void clearBuf(char* b1)
+void upload_file(int *socket)
 {
-	int i;
-	for (i = 0; i < Net_Buf_Size; i++)
-	b1[i] = '\0';
+	FILE *ptr = fopen("Record.txt","r+");
+	fseek(ptr,0,SEEK_END);
+	int len = ftell(ptr),i;
+	fclose(ptr);
+	char ch;
+	send(*socket,&len,sizeof(len),0);
+	ptr = fopen("Record.txt","r+");
+	for(i=0;i<len;++i)
+	{
+		ch = fgetc(ptr);
+		//printf("%c",ch);
+		send(*socket,&ch,sizeof(char),0);
+	}
+	fclose(ptr);
+	printf("%d bytes transferred successfully.\n",len);
 }
 
-// function for encryption method
-char Cipher(char ch1)
+void download_file(int *socket)
 {
-	return ch1 ^ CipherKey;
+	FILE *ptr = fopen("DownloadedFile.txt","w+");
+	int len,i;
+	char ch;
+	recv(*socket,&len,sizeof(len),0);
+	fseek(ptr,0,SEEK_CUR);
+	for(i=0;i<len;++i)
+	{
+		recv(*socket,&ch,sizeof(char),0);
+		//printf("%c",ch);
+		fputc(ch,ptr);
+	}
+	fclose(ptr);
+	printf("%d bytes fetched.\n",len);
+	printf("File downloaded and saved as DownloadedFile.txt\n");
 }
 
-// function for sending file
-int sendFile(FILE* fp1, char* buf1, int s1)
-{
-	int i, len;
-	if (fp1 == NULL) 
-	{
-		strcpy(buf1, NoFile);
-		len = strlen(NoFile);
-		buf1[len] = EOF;
-		for (i = 0; i <= len; i++)
-		buf1[i] = Cipher(buf1[i]);
-		return 1;
-	}
-	char ch1, ch2;
-	for (i = 0; i < s1; i++) 
-	{
-		ch1 = fgetc(fp1);
-		ch2 = Cipher(ch1);
-		buf1[i] = ch2;
-		if (ch1 == EOF)
-		return 1;
-	}
-	return 0;
-}
 
